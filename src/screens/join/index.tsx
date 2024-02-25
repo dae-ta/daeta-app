@@ -1,10 +1,10 @@
 import React from 'react';
 import {Pressable, Text, View} from 'react-native';
 
-export const HomeScreen = () => {
+export const JoinScreen = () => {
   return (
     <View>
-      <Text>Home</Text>
+      <Text>Join</Text>
       <Pressable>
         <Text>Hello</Text>
       </Pressable>
