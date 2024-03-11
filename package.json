@@ -10,11 +10,14 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.22.2",
     "@react-navigation/bottom-tabs": "^6.5.12",
     "@react-navigation/native": "^6.1.10",
     "@react-navigation/native-stack": "^6.9.18",
     "axios": "^1.6.7",
+    "lodash-es": "^4.17.21",
     "react": "18.2.0",
+    "react-hook-form": "^7.51.0",
     "react-native": "0.73.4",
     "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-safe-area-context": "^4.9.0",
@@ -28,6 +31,7 @@
     "@react-native/eslint-config": "0.73.2",
     "@react-native/metro-config": "0.73.5",
     "@react-native/typescript-config": "0.73.1",
+    "@types/lodash-es": "^4.17.12",
     "@types/react": "^18.2.6",
     "@types/react-test-renderer": "^18.0.0",
     "babel-jest": "^29.6.3",

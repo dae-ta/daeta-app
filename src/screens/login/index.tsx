@@ -1,81 +1,96 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../shared/types/native-stack';
+import React, {useRef} from 'react';
+import {Controller, useForm} from 'react-hook-form';
+import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 import DismissKeyboardView from '../../shared/components/dismiss-keyboard-view';
+import {FormInput} from '../../shared/components/form-input';
+import {RootStackParamList} from '../../shared/types/native-stack';
+import {isEmpty} from 'lodash-es';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-const LoginScreen = ({navigation}: LoginScreenProps) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const emailRef = useRef<TextInput | null>(null);
+type FormData = {
+  email: string;
+  password: string;
+};
+
+export const LoginScreen = ({navigation}: LoginScreenProps) => {
   const passwordRef = useRef<TextInput | null>(null);
 
-  const onChangeEmail = (text: string) => {
-    setEmail(text.trim());
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+  const onSubmit = (data: FormData) => {
+    console.log(data);
   };
 
-  const onChangePassword = (text: string) => {
-    setPassword(text.trim());
-  };
-
-  const onSubmit = () => {
-    Alert.alert('알림', '로그인 되었습니다.');
-  };
-
-  const toSignUp = useCallback(() => {
-    navigation.navigate('Login');
-  }, [navigation]);
-
-  const ableToLoginCondition = email && password;
+  const ableToLoginCondition = isEmpty(errors);
 
   return (
     <DismissKeyboardView>
-      <>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>이메일</Text>
-          <TextInput
-            style={styles.textInput}
-            onChangeText={onChangeEmail}
-            placeholder="이메일을 입력해주세요"
-            placeholderTextColor="#666"
-            importantForAutofill="yes"
-            autoComplete="email"
-            textContentType="emailAddress"
-            value={email}
-            returnKeyType="next"
-            clearButtonMode="while-editing"
-            ref={emailRef}
-            onSubmitEditing={() => passwordRef.current?.focus()}
-            blurOnSubmit={false}
-          />
-        </View>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>비밀번호</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="비밀번호를 입력해주세요(영문,숫자,특수문자)"
-            placeholderTextColor="#666"
-            importantForAutofill="yes"
-            onChangeText={onChangePassword}
-            value={password}
-            autoComplete="password"
-            textContentType="password"
-            secureTextEntry
-            returnKeyType="send"
-            clearButtonMode="while-editing"
-            ref={passwordRef}
-            onSubmitEditing={onSubmit}
-          />
-        </View>
+      <View>
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <FormInput
+              label="이메일"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="이메일을 입력해주세요"
+              placeholderTextColor="#666"
+              importantForAutofill="yes"
+              autoComplete="email"
+              textContentType="emailAddress"
+              value={value}
+              returnKeyType="next"
+              clearButtonMode="while-editing"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              blurOnSubmit={false}
+            />
+          )}
+          name="email"
+        />
+        {errors.email && (
+          <Text style={styles.errorText}>이메일을 입력해주세요</Text>
+        )}
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <FormInput
+              label="비밀번호"
+              placeholder="비밀번호를 입력해주세요(영문,숫자,특수문자)"
+              placeholderTextColor="#666"
+              importantForAutofill="yes"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              autoComplete="password"
+              textContentType="password"
+              secureTextEntry
+              returnKeyType="send"
+              clearButtonMode="while-editing"
+              ref={passwordRef}
+              onSubmitEditing={handleSubmit(onSubmit)}
+            />
+          )}
+          name="password"
+        />
+        {errors.password && (
+          <Text style={styles.errorText}>비밀번호를 입력해주세요</Text>
+        )}
         <View style={styles.buttonZone}>
           <Pressable
             style={
@@ -87,32 +102,28 @@ const LoginScreen = ({navigation}: LoginScreenProps) => {
                 : styles.loginButton
             }
             disabled={!ableToLoginCondition}
-            onPress={onSubmit}>
+            onPress={handleSubmit(onSubmit)}>
             <Text style={styles.loginButtonText}>로그인</Text>
           </Pressable>
-          <Pressable onPress={toSignUp}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate('Join');
+            }}>
             <Text>회원가입하기</Text>
           </Pressable>
         </View>
-      </>
+      </View>
     </DismissKeyboardView>
   );
 };
 
 const styles = StyleSheet.create({
-  textInput: {
-    padding: 5,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  inputWrapper: {
-    padding: 20,
-  },
-  label: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 20,
+  errorText: {
+    paddingLeft: 20,
+    color: 'red',
   },
   buttonZone: {
+    marginTop: 30,
     alignItems: 'center',
   },
   loginButton: {
@@ -130,5 +141,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-export default LoginScreen;

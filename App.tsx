@@ -12,9 +12,8 @@ import {HomeScreen} from './src/screens/home';
 import {SettingScreen} from './src/screens/setting';
 import {RootStackParamList} from './src/shared/types/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-
 import {JoinScreen} from './src/screens/join';
-import LoginScreen from './src/screens/login';
+import {LoginScreen} from './src/screens/login';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
