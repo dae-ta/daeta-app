@@ -1,11 +1,16 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useMutation} from '@tanstack/react-query';
+import {isEmpty} from 'lodash-es';
 import React, {useRef} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import {useSetRecoilState} from 'recoil';
+import {postLogin} from '../../shared/apis/auth/login';
 import DismissKeyboardView from '../../shared/components/dismiss-keyboard-view';
 import {FormInput} from '../../shared/components/form-input';
+import {isLoggedInState} from '../../shared/recoil';
 import {RootStackParamList} from '../../shared/types/native-stack';
-import {isEmpty} from 'lodash-es';
+import {setSecureValue} from '../../shared/utils/storage';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -16,6 +21,21 @@ type FormData = {
 
 export const LoginScreen = ({navigation}: LoginScreenProps) => {
   const passwordRef = useRef<TextInput | null>(null);
+  const setLoggedIn = useSetRecoilState(isLoggedInState);
+
+  const {mutate: mutateJoin} = useMutation({
+    mutationFn: postLogin,
+    onSuccess: async data => {
+      const {accessToken, refreshToken, expiredAt} = data;
+      await setSecureValue('accessToken', accessToken);
+      await setSecureValue('refreshToken', refreshToken);
+      await setSecureValue('expiredAt', expiredAt);
+      setLoggedIn(true);
+    },
+    onError: error => {
+      console.log(error);
+    },
+  });
 
   const {
     control,
@@ -28,7 +48,7 @@ export const LoginScreen = ({navigation}: LoginScreenProps) => {
     },
   });
   const onSubmit = (data: FormData) => {
-    console.log(data);
+    mutateJoin(data);
   };
 
   const ableToLoginCondition = isEmpty(errors);
