@@ -5,21 +5,37 @@
  * @format
  */
 
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import React, {useState} from 'react';
+import {RecoilRoot, useRecoilValue} from 'recoil';
 import {HomeScreen} from './src/screens/home';
-import {SettingScreen} from './src/screens/setting';
-import {RootStackParamList} from './src/shared/types/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {JoinScreen} from './src/screens/join';
 import {LoginScreen} from './src/screens/login';
+import {SettingScreen} from './src/screens/setting';
+import {isLoggedInState} from './src/shared/recoil';
+import {RootStackParamList} from './src/shared/types/native-stack';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const Container = () => {
+  const [queryClient] = useState(() => new QueryClient({}));
+
+  return (
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </RecoilRoot>
+  );
+};
+
 function App(): React.JSX.Element {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedIn = useRecoilValue(isLoggedInState);
+
   return (
     <NavigationContainer>
       {isLoggedIn ? (
@@ -53,4 +69,4 @@ function App(): React.JSX.Element {
   );
 }
 
-export default App;
+export default Container;

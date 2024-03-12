@@ -1,22 +1,36 @@
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useMutation} from '@tanstack/react-query';
 import React, {useRef} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import {postJoin} from '../../shared/apis/auth/join';
 import DismissKeyboardView from '../../shared/components/dismiss-keyboard-view';
 import {FormInput} from '../../shared/components/form-input';
-import {RootStackParamList} from '../../shared/types/native-stack';
-
-type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Join'>;
+import {setSecureValue} from '../../shared/utils/storage';
+import {useSetRecoilState} from 'recoil';
+import {isLoggedInState} from '../../shared/recoil';
+import {isEmpty} from 'lodash-es';
 
 type FormData = {
   email: string;
   password: string;
 };
 
-export const JoinScreen = ({navigation}: LoginScreenProps) => {
+export const JoinScreen = () => {
   const passwordRef = useRef<TextInput | null>(null);
-
-  const ableToLoginCondition = true;
+  const setLoggedIn = useSetRecoilState(isLoggedInState);
+  const {mutate: mutateJoin} = useMutation({
+    mutationFn: postJoin,
+    onSuccess: async data => {
+      const {accessToken, refreshToken, expiredAt} = data;
+      await setSecureValue('accessToken', accessToken);
+      await setSecureValue('refreshToken', refreshToken);
+      await setSecureValue('expiredAt', expiredAt);
+      setLoggedIn(true);
+    },
+    onError: error => {
+      console.log(error);
+    },
+  });
 
   const {
     control,
@@ -28,9 +42,11 @@ export const JoinScreen = ({navigation}: LoginScreenProps) => {
       password: '',
     },
   });
+
+  const ableToLoginCondition = isEmpty(errors);
+
   const onSubmit = (data: FormData) => {
-    console.log(data);
-    console.log(errors, 'errors');
+    mutateJoin(data);
   };
 
   return (
@@ -44,7 +60,6 @@ export const JoinScreen = ({navigation}: LoginScreenProps) => {
           render={({field: {onChange, onBlur, value}}) => (
             <FormInput
               label="이메일"
-              style={styles.textInput}
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="이메일을 입력해주세요"
@@ -72,7 +87,6 @@ export const JoinScreen = ({navigation}: LoginScreenProps) => {
           render={({field: {onChange, onBlur, value}}) => (
             <FormInput
               label="비밀번호"
-              style={styles.textInput}
               placeholder="비밀번호를 입력해주세요(영문,숫자,특수문자)"
               placeholderTextColor="#666"
               importantForAutofill="yes"
@@ -105,13 +119,7 @@ export const JoinScreen = ({navigation}: LoginScreenProps) => {
             }
             disabled={!ableToLoginCondition}
             onPress={handleSubmit(onSubmit)}>
-            <Text style={styles.loginButtonText}>로그인</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              navigation.navigate('Join');
-            }}>
-            <Text>회원가입하기</Text>
+            <Text style={styles.loginButtonText}>회원가입</Text>
           </Pressable>
         </View>
       </View>
@@ -124,18 +132,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     color: 'red',
   },
-  textInput: {
-    padding: 5,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  inputWrapper: {
-    padding: 20,
-  },
-  label: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 20,
-  },
+
   buttonZone: {
     marginTop: 30,
     alignItems: 'center',
