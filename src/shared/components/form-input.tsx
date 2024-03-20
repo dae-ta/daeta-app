@@ -18,8 +18,9 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(
 
 const styles = StyleSheet.create({
   textInput: {
-    padding: 5,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    padding: 15,
+    borderRadius: 5,
+    borderWidth: 0.3,
   },
   inputWrapper: {
     padding: 20,
