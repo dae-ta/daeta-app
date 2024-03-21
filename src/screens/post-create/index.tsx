@@ -72,35 +72,46 @@ export const PostCreate = () => {
   };
 
   const handlePressImageSelect = async () => {
-    const image = await ImagePicker.openPicker({
-      multiple: false,
+    const images = await ImagePicker.openPicker({
+      multiple: true,
+      maxFiles: 3 - previewImages.length,
       includeBase64: true,
       includeExif: true,
       mediaType: 'photo',
     });
 
-    setPreviewImages([...previewImages, image]);
+    setPreviewImages([...previewImages, ...images]);
 
-    const response = await ImageResizer.createResizedImage(
-      image.path,
-      600,
-      600,
-      image.mime === 'image/jpeg' ? 'JPEG' : 'PNG',
-      100,
-      0,
+    const responses = await Promise.allSettled(
+      images.map(image =>
+        ImageResizer.createResizedImage(
+          image.path,
+          600,
+          600,
+          image.mime === 'image/jpeg' ? 'JPEG' : 'PNG',
+          100,
+          0,
+        ),
+      ),
     );
 
-    const resizedImageObject = {
-      uri:
-        Platform.OS === 'android'
-          ? response.uri
-          : response.uri.replace('file://', ''),
-      name: response.name,
-      type: image.mime,
-    };
-
     const formData = new FormData();
-    formData.append('files', resizedImageObject);
+
+    responses.forEach((response, index) => {
+      if (response.status === 'fulfilled') {
+        const resizedImage = response.value;
+        const resizedImageObject = {
+          uri:
+            Platform.OS === 'android'
+              ? resizedImage.uri
+              : resizedImage.uri.replace('file://', ''),
+          name: resizedImage.name,
+          type: images[index].mime,
+        };
+
+        formData.append('files', resizedImageObject);
+      }
+    });
 
     mutateCreateImage(formData);
   };
