@@ -11,6 +11,10 @@ export type Post = {
     imageUrl: string;
   }[];
   createdAt: string;
+  User: {
+    email: string;
+    id: number;
+  };
 };
 
 export const getPost = async (id: number) => {

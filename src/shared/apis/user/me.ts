@@ -1,14 +1,13 @@
 import {createAxiosInstance} from '../axios/create-axios-instance';
 
-export const ME_API_PATH = '/user/me';
+export const GET_ME_API_PATH = '/user/me';
+
+export type Me = {
+  email: string;
+  id: number;
+};
 
 export const getMe = async () => {
-  try {
-    const {data} = await createAxiosInstance().get(ME_API_PATH);
-    return data;
-
-    // 토큰이 없어 실패하더라도 null로 내립니다.
-  } catch (error) {
-    return null;
-  }
+  const {data} = await createAxiosInstance().get(GET_ME_API_PATH);
+  return data as Me;
 };

@@ -4,9 +4,9 @@ import {isEmpty} from 'lodash-es';
 import React, {useRef} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useSetRecoilState} from 'recoil';
 import {postLogin} from '../../shared/apis/auth/login';
-import DismissKeyboardView from '../../shared/components/dismiss-keyboard-view';
 import {FormInput} from '../../shared/components/form-input';
 import {isLoggedInState} from '../../shared/recoil';
 import {RootStackParamList} from '../../shared/types/native-stack';
@@ -54,7 +54,7 @@ export const LoginScreen = ({navigation}: LoginScreenProps) => {
   const ableToLoginCondition = isEmpty(errors);
 
   return (
-    <DismissKeyboardView>
+    <KeyboardAwareScrollView>
       <View>
         <Controller
           control={control}
@@ -133,7 +133,7 @@ export const LoginScreen = ({navigation}: LoginScreenProps) => {
           </Pressable>
         </View>
       </View>
-    </DismissKeyboardView>
+    </KeyboardAwareScrollView>
   );
 };
 

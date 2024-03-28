@@ -27,16 +27,21 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import SplashScreen from 'react-native-splash-screen';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import {RecoilRoot, useRecoilState} from 'recoil';
+import {ChatList} from './src/screens/chat-list';
+import {JoinScreen} from './src/screens/join';
+import {LoginScreen} from './src/screens/login';
 import {Post} from './src/screens/post';
 import {PostCreate} from './src/screens/post-create';
 import {PostList} from './src/screens/post-list';
-import {JoinScreen} from './src/screens/join';
-import {LoginScreen} from './src/screens/login';
 import {SettingScreen} from './src/screens/setting';
 import {getMe} from './src/shared/apis/user/me';
 import {isLoggedInState} from './src/shared/recoil';
-import {RootStackParamList} from './src/shared/types/native-stack';
+import {
+  PostDetailParam,
+  RootStackParamList,
+} from './src/shared/types/native-stack';
 import {getSecureValue} from './src/shared/utils/storage';
+import {Chat} from './src/screens/chat';
 // import 'react-native-gesture-handler';
 
 const Tab = createBottomTabNavigator();
@@ -73,15 +78,19 @@ function App(): React.JSX.Element {
   useEffect(() => {
     // 앱 처음 진입시 로그인 여부 확인
     (async () => {
-      const refreshToken = await getSecureValue('refreshToken');
-      if (refreshToken) {
-        const me = await getMeMutate();
-        // me가 없다는 의미는 refresh token까지 만료되었다는 의미 -> 다시 로그인해야함
-        if (me) {
-          setIsLoggedIn(true);
+      try {
+        const refreshToken = await getSecureValue('refreshToken');
+        if (refreshToken) {
+          const me = await getMeMutate();
+          // me가 없다는 의미는 refresh token까지 만료되었다는 의미 -> 다시 로그인해야함
+          if (me) {
+            setIsLoggedIn(true);
+          }
         }
+        SplashScreen.hide();
+      } catch (error) {
+        setIsLoggedIn(false);
       }
-      SplashScreen.hide();
     })();
   }, []);
 
@@ -109,6 +118,16 @@ function App(): React.JSX.Element {
             component={PostCreate}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="ChatList"
+            component={ChatList}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Chat"
+            component={Chat}
+            options={{headerShown: false}}
+          />
         </Stack.Navigator>
       ) : (
         <Stack.Navigator>
@@ -130,7 +149,7 @@ function App(): React.JSX.Element {
 
 const HomeComponent = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const route = useRoute<RouteProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<PostDetailParam>>();
 
   // postId가 있으면 해당 postId의 글 상세로 이동
   useEffect(() => {
@@ -149,7 +168,29 @@ const HomeComponent = () => {
         component={PostList}
         options={{
           headerShown: false,
-          tabBarIcon: () => <IonIcons name="home" size={20} />,
+          tabBarIcon: ({focused}) => (
+            <IonIcons name={focused ? 'home' : 'home-outline'} size={20} />
+          ),
+          tabBarLabelStyle: {color: 'black'},
+          tabBarInactiveTintColor: 'red',
+        }}
+        listeners={{
+          tabPress: e => {
+            console.log(e, 'e');
+          },
+        }}
+      />
+      <Tab.Screen
+        name="채팅"
+        component={ChatList}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <IonIcons
+              name={focused ? 'chatbox-ellipses' : 'chatbox-ellipses-outline'}
+              size={20}
+            />
+          ),
           tabBarLabelStyle: {color: 'black'},
         }}
       />
@@ -158,7 +199,12 @@ const HomeComponent = () => {
         component={SettingScreen}
         options={{
           headerShown: false,
-          tabBarIcon: () => <IonIcons name="settings" size={20} />,
+          tabBarIcon: ({focused}) => (
+            <IonIcons
+              name={focused ? 'settings' : 'settings-outline'}
+              size={20}
+            />
+          ),
           tabBarLabelStyle: {color: 'black'},
         }}
       />

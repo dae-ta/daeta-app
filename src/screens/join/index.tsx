@@ -3,12 +3,13 @@ import React, {useRef} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 import {postJoin} from '../../shared/apis/auth/join';
-import DismissKeyboardView from '../../shared/components/dismiss-keyboard-view';
+
 import {FormInput} from '../../shared/components/form-input';
 import {setSecureValue} from '../../shared/utils/storage';
 import {useSetRecoilState} from 'recoil';
 import {isLoggedInState} from '../../shared/recoil';
 import {isEmpty} from 'lodash-es';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 type FormData = {
   email: string;
@@ -50,7 +51,7 @@ export const JoinScreen = () => {
   };
 
   return (
-    <DismissKeyboardView>
+    <KeyboardAwareScrollView>
       <View>
         <Controller
           control={control}
@@ -123,7 +124,7 @@ export const JoinScreen = () => {
           </Pressable>
         </View>
       </View>
-    </DismissKeyboardView>
+    </KeyboardAwareScrollView>
   );
 };
 

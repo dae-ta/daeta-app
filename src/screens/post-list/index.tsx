@@ -16,12 +16,15 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import {LIST_POST_API_PATH, listPost} from '../../shared/apis/post/list-post';
-import {RootStackParamList} from '../../shared/types/native-stack';
+import {
+  PostListParam,
+  RootStackParamList,
+} from '../../shared/types/native-stack';
 import {Item} from './post-list.sub/item';
 
 export const PostList = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const route = useRoute<RouteProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<PostListParam>>();
   const [refreshing, setRefreshing] = useState(false);
 
   const {data: posts, refetch} = useSuspenseQuery({
