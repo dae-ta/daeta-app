@@ -1,6 +1,7 @@
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {useMutation} from '@tanstack/react-query';
+import {Dayjs} from 'dayjs';
 import {isEmpty} from 'lodash-es';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
@@ -8,6 +9,7 @@ import {
   Image,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -20,6 +22,7 @@ import {createImage} from '../../shared/apis/common/create-image';
 import {createPost} from '../../shared/apis/post/create-post';
 import {Header} from '../../shared/components/header';
 import {RootStackParamList} from '../../shared/types/native-stack';
+import {Calendar} from './post-create.sub/calendar';
 
 type FormData = {
   title: string;
@@ -30,6 +33,8 @@ export const PostCreate = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [previewImages, setPreviewImages] = useState<ImageType[]>([]);
   const [resizedImagePaths, setResizedImagePaths] = useState<string[]>([]);
+  const [selectedDates, setSelectedDates] = useState<Dayjs[]>([]);
+
   const {mutate: mutateCreatePost} = useMutation({
     mutationFn: createPost,
     onError: error => {
@@ -121,86 +126,97 @@ export const PostCreate = () => {
   return (
     <SafeAreaView edges={['top']} style={{flex: 1}}>
       <Header />
-      <View>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>사진 (선택)</Text>
-          <Text style={styles.subTitle}>
-            일하는 공간이나 일과 관련된 사진을 올려보세요.
-          </Text>
+      <ScrollView>
+        <View>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.label}>사진 (선택)</Text>
+            <Text style={styles.subTitle}>
+              일하는 공간이나 일과 관련된 사진을 올려보세요.
+            </Text>
+          </View>
+          <View style={styles.imageSectionContainer}>
+            <Pressable onPress={handlePressImageSelect}>
+              <View style={styles.cameraIconContainer}>
+                <IonIcons name="camera-outline" size={20} />
+                <Text>{previewImages.length}/3</Text>
+              </View>
+            </Pressable>
+            {previewImages.length > 0 && (
+              <>
+                {previewImages.map((image, index) => (
+                  <View key={index}>
+                    <Image
+                      style={styles.previewImage}
+                      source={{uri: image.path}}
+                    />
+                  </View>
+                ))}
+              </>
+            )}
+          </View>
         </View>
-        <View style={styles.imageSectionContainer}>
-          <Pressable onPress={handlePressImageSelect}>
-            <View style={styles.cameraIconContainer}>
-              <IonIcons name="camera-outline" size={20} />
-              <Text>{previewImages.length}/3</Text>
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>제목</Text>
+              <TextInput
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="제목을 입력해주세요"
+                placeholderTextColor="#666"
+                importantForAutofill="yes"
+                value={value}
+                returnKeyType="next"
+                clearButtonMode="while-editing"
+                blurOnSubmit={false}
+                style={styles.textInput}
+              />
             </View>
-          </Pressable>
-          {previewImages.length > 0 && (
-            <>
-              {previewImages.map((image, index) => (
-                <View key={index}>
-                  <Image
-                    style={styles.previewImage}
-                    // source={{uri: `data:${image.mime};base64,${image.data}`}}
-                    source={{uri: image.path}}
-                  />
-                </View>
-              ))}
-            </>
           )}
+          name="title"
+        />
+        {errors.title && (
+          <Text style={styles.errorText}>제목을 입력해주세요</Text>
+        )}
+
+        <View style={styles.inputWrapper}>
+          <Text style={styles.label}>일하는 날짜</Text>
         </View>
-      </View>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({field: {onChange, onBlur, value}}) => (
-          <View style={styles.inputWrapper}>
-            <Text style={styles.label}>제목</Text>
-            <TextInput
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="제목을 입력해주세요"
-              placeholderTextColor="#666"
-              importantForAutofill="yes"
-              value={value}
-              returnKeyType="next"
-              clearButtonMode="while-editing"
-              blurOnSubmit={false}
-              style={styles.textInput}
-            />
-          </View>
-        )}
-        name="title"
-      />
-      {errors.title && (
-        <Text style={styles.errorText}>제목을 입력해주세요</Text>
-      )}
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({field: {onChange, onBlur, value}}) => (
-          <View style={styles.inputWrapper}>
-            <Text style={styles.label}>상세내용</Text>
-            <TextInput
-              onChangeText={onChange}
-              onBlur={onBlur}
-              multiline={true}
-              numberOfLines={4}
-              placeholder="예) 업무 예시, 근무 여건, 갖추어야 할 능력, 우대사항 등"
-              placeholderTextColor="#666"
-              value={value}
-              returnKeyType="next"
-              clearButtonMode="while-editing"
-              style={styles.textAreaInput}
-            />
-          </View>
-        )}
-        name="content"
-      />
+        <Calendar
+          selectedDates={selectedDates}
+          setSelectedDates={setSelectedDates}
+        />
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>상세내용</Text>
+              <TextInput
+                onChangeText={onChange}
+                onBlur={onBlur}
+                multiline={true}
+                numberOfLines={4}
+                placeholder="예) 업무 예시, 근무 여건, 갖추어야 할 능력, 우대사항 등"
+                placeholderTextColor="#666"
+                value={value}
+                returnKeyType="next"
+                clearButtonMode="while-editing"
+                style={styles.textAreaInput}
+              />
+            </View>
+          )}
+          name="content"
+        />
+
+        <View style={{height: 100}} />
+      </ScrollView>
       <View style={styles.buttonZone}>
         <Pressable
           style={styles.button}
