@@ -6,6 +6,14 @@ export type Post = {
   id: number;
   title: string;
   content: string;
+  payment: number;
+  paymentType: string;
+  startTime: string;
+  endTime: string;
+  DatesAtMs: {
+    id: number;
+    dateAtMs: string;
+  }[];
   Images: {
     id: number;
     imageUrl: string;

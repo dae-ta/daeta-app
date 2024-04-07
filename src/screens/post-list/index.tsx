@@ -12,6 +12,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  View,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
@@ -47,9 +48,13 @@ export const PostList = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
-        {posts.map(post => (
-          <Item key={post.id} post={post} />
-        ))}
+        {posts.length > 0 ? (
+          posts.map(post => <Item key={post.id} post={post} />)
+        ) : (
+          <View>
+            <Text>아직 글이 없어요</Text>
+          </View>
+        )}
       </ScrollView>
       <Pressable
         style={styles.createButton}

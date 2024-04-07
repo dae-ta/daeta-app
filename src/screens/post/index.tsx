@@ -27,6 +27,10 @@ import {
   PostDetailParam,
   RootStackParamList,
 } from '../../shared/types/native-stack';
+import dayjs from 'dayjs';
+import IonIcons from 'react-native-vector-icons/Ionicons';
+import {SpaceHeight} from '../../shared/components/SpaceHeight';
+import {convertToMoneyFormat} from '../../shared/utils/number/convert-to-money-format';
 
 export const Post = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -46,7 +50,15 @@ export const Post = () => {
     ],
   });
 
-  console.log(userData, 'userData');
+  console.log(postData, 'postData');
+
+  const createdTime = dayjs(postData.createdAt).fromNow();
+  const dates = postData.DatesAtMs.map(date =>
+    dayjs(Number(date.dateAtMs)).format('ddd'),
+  )
+    .map(date => date)
+    .join(', ');
+
   const isPostOwner = userData?.id === postData.User.id;
 
   const dimensions = Dimensions.get('window');
@@ -83,7 +95,31 @@ export const Post = () => {
           )}
           <View style={styles.container}>
             <Text style={styles.title}>{postData.title}</Text>
+            <Text style={styles.subTitle}>{`하안돌곱창 • ${createdTime}`}</Text>
             <Divider />
+            <View style={conditionStyles.container}>
+              <IonIcons name="cash-outline" size={20} />
+              <Text style={conditionStyles.text}>
+                {postData.paymentType}{' '}
+                {convertToMoneyFormat({
+                  money: postData.payment,
+                  omitUnit: 0,
+                })}
+              </Text>
+            </View>
+            <SpaceHeight height={10} />
+            <View style={conditionStyles.container}>
+              <IonIcons name="calendar-number-outline" size={20} />
+              <Text style={conditionStyles.text}>{dates}</Text>
+            </View>
+            <SpaceHeight height={10} />
+            <View style={conditionStyles.container}>
+              <IonIcons name="time-outline" size={20} />
+              <Text style={conditionStyles.text}>
+                {postData.startTime} ~ {postData.endTime}
+              </Text>
+            </View>
+            <SpaceHeight height={30} />
             <Text>{postData.content}</Text>
           </View>
         </ScrollView>
@@ -113,6 +149,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
   },
+  subTitle: {
+    marginTop: 10,
+    fontSize: 12,
+    color: '#8C8C8C',
+  },
   contactButton: {
     position: 'absolute',
     bottom: 20,
@@ -130,5 +171,16 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontWeight: 'bold',
     fontSize: 16,
+  },
+});
+
+const conditionStyles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  text: {
+    marginLeft: 8,
   },
 });

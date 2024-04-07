@@ -7,6 +7,7 @@ import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import {Post} from '../../../../shared/apis/post/list-post';
 import {S3_BUCKET_URL} from '../../../../shared/constants/urls';
 import {RootStackParamList} from '../../../../shared/types/native-stack';
+import {commarizeNumber} from '../../../../shared/utils/number/commarize-number';
 
 dayjs.extend(relativeTime);
 dayjs.locale('ko');
@@ -16,12 +17,19 @@ interface Props {
 }
 
 export const Item = ({post}: Props) => {
+  console.log(post, 'post');
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const createdTime = dayjs(post.createdAt).fromNow();
 
   const handlePress = () => {
     navigation.navigate('PostDetail', {postId: post.id});
   };
+
+  const dates = post.DatesAtMs.map(date =>
+    dayjs(Number(date.dateAtMs)).format('ddd'),
+  )
+    .map(date => date)
+    .join(', ');
 
   return (
     <Pressable onPress={handlePress} style={styles.itemContainer}>
@@ -30,8 +38,12 @@ export const Item = ({post}: Props) => {
         style={styles.contents}>{`하안돌곱창 • 하안동 • ${createdTime}`}</Text>
       <View style={styles.bottomContainer}>
         <View>
-          <Text>시급 12,000원</Text>
-          <Text>월~금 • 18:00~00:00 </Text>
+          <Text style={styles.bottomMainText}>
+            {post.paymentType} {commarizeNumber(String(post.payment))}원
+          </Text>
+          <Text style={styles.bottomSubText}>
+            {dates} • {post.startTime}~{post.endTime}
+          </Text>
         </View>
         {post.Images[0]?.imageUrl && (
           <Image
@@ -53,12 +65,14 @@ const styles = StyleSheet.create({
   },
   title: {
     paddingTop: 10,
-    paddingBottom: 5,
+    paddingBottom: 10,
     fontSize: 16,
     fontWeight: 'bold',
   },
   contents: {
-    marginBottom: 20,
+    marginBottom: 10,
+    fontSize: 12,
+    color: '#8C8C8C',
   },
 
   bottomContainer: {
@@ -66,6 +80,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  bottomMainText: {
+    marginBottom: 5,
+  },
+  bottomSubText: {
+    fontSize: 12,
+    color: '#8C8C8C',
   },
 
   image: {

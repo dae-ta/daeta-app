@@ -209,19 +209,3 @@ const styles = StyleSheet.create({
   },
   icon: {},
 });
-
-const chatStyles = (isMe: boolean) =>
-  StyleSheet.create({
-    chatContainer: {
-      maxWidth: '80%',
-      padding: 10,
-      backgroundColor: isMe ? '#5F00FF' : '#f2f2f2',
-      borderRadius: 15,
-      marginBottom: 10,
-    },
-    chat: {
-      alignSelf: isMe ? 'flex-end' : 'flex-start',
-      color: isMe ? '#ffff' : '#000',
-      padding: 3,
-    },
-  });
