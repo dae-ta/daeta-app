@@ -1,3 +1,8 @@
+
+<img width="460" alt="스크린샷 2024-05-15 오후 8 09 14" src="https://github.com/dae-ta/daeta-app/assets/39295881/37830b8a-2658-4f86-a5fd-bd5802713f12">
+
+
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
